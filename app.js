@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config();
+}
+
 const express      =require("express")
 const app          =express();
 
@@ -11,10 +15,11 @@ const    MaterialAdd = require("./models/MaterialAdd");
 const    flash         =require("connect-flash");
 const    User         = require("./models/user");
 const    suggestion   = require("./models/suggestion");
+const MongoDBStore =  require('connect-mongo') ;
 const    seedDB       =require("./seed");
 const ejsMate = require('ejs-mate');
 
-const  dbUrl= process.env.DB_URL || 'mongodb://localhost:27017/CodeFarm';
+const  dbUrl= process.env.DB_URL || 'mongodb://localhost:27017/CodeFarm' ;
 mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     //useCreateIndex: true,
@@ -36,11 +41,26 @@ app.use(flash());
 
 //seedDB();
 const secret = process.env.SECRET || 'thisshouldbeabettersecret!';
+const store = MongoDBStore.create({
+    mongoUrl: dbUrl,
+    secret,
+    touchAfter: 24 * 60 * 60
+});
+
+store.on("error", function (e) {
+    console.log("SESSION STORE ERROR", e)
+})
 //passport configuration
 app.use(require("express-session")({
+    store,
     secret,
     resave:false,
-    saveUninitialized:false
+    saveUninitialized:false,
+    cookie : {
+        httpOnly : true ,
+        expires : Date.now() + 1000*60*60*24*7,
+        maxAge : 1000*60*60*24*7,
+    }
  }));
 app.use(passport.initialize());
 app.use(passport.session());
