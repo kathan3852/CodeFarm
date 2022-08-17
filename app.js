@@ -76,20 +76,12 @@ app.use(function(req,res,next){
 
 
 
-//creating new champf=ground every time for test and make proper wor
-
-//=========================================
-//all router
-//=========================================
 
 app.get("/",function(req,res){
 
     console.log("request for landing page");
     res.render("landing");
 });
-//=============================================
-//discussion
-//=============================================
 
 app.get("/discussions",async function(req,res){
 
@@ -102,9 +94,8 @@ app.get("/discussions",async function(req,res){
         }
     });
 });
-//adding discussion to discussion model
 app.post("/discussions",isLoggedIn,async function(req,res){
-    //excess data from the form
+    
     var topic=req.body.topic;
     var question=req.body.question;
     var author={
@@ -113,51 +104,47 @@ app.post("/discussions",isLoggedIn,async function(req,res){
     }
     var newdiscussion={topic: topic , question:question,author : author};
     
-    //add data to data base
+   
     await discussion.create(newdiscussion,function(err,discuss){
         if(err){
             console.log(err);
         }else{
-            //redirect the discussions page
+            
             res.redirect("/discussions");
         }
     });
 });
-//new page to add discussion
+
 app.get("/discussions/new",isLoggedIn,function(req,res){
     res.render("discussion/new.ejs");
     console.log("Request for form page to add discussion!!");
 });
 
-//show rout description of a particular object in brief
+
 app.get("/discussions/:id",async function(req,res){
-    //find the topics with provide id
+    
     await discussion.findById(req.params.id).populate("comments").exec(function(err,founddiscussion){
         if(err){
             console.log("something went wrong");
             console.log(err);
         }else{
-            //render show tempelate with that id
+           
         res.render("discussion/show.ejs",{discussion:founddiscussion});
         }
     });
     
 });
 
-//=================================
-//edit and update discussion route
-//==================================
 
-//edit discussion route
 app.get("/discussions/:id/edit",checkdiscussionOwnership,async function(req,res){
     await discussion.findById(req.params.id,function(err,founddiscussion){
         res.render("discussion/edit",{discussion:founddiscussion});
     });
 });
 
-//update discussion route
+
 app.put("/discussions/:id",checkdiscussionOwnership,async function(req,res){
-//find and update the correct discussion and redirect
+
 await discussion.findByIdAndUpdate(req.params.id,req.body.discussion,function(err,updateddiscussion){
 if(err){
     res.redirect("/discussions");
@@ -167,9 +154,9 @@ if(err){
 })
 });
 
-//destroy champground
+
 app.delete("/discussions/:id",checkdiscussionOwnership,async function(req,res){
-//res.send("you are trying to delet it"); 
+
 await discussion.findByIdAndRemove(req.params.id, function(err,){
 if(err){
     res.redirect("/discussions");
@@ -181,9 +168,7 @@ if(err){
 
 
 
-//=============================================================
-//comment routes
-//==============================================================
+
 
 app.get("/discussions/:id/comments/new",isLoggedIn,async function(req,res){
    await  discussion.findById(req.params.id ,function(err,discussion){
@@ -222,11 +207,6 @@ app.post("/discussions/:id/comments",isLoggedIn,async function(req,res){
     });
 });
 
-
-//=============================================
-//comment delet and edit route
-//=============================================
-//comment form display
 app.get("/discussions/:id/comments/:comment_id/edit",checkCommentOwnership,async function(req,res){
    await  comment.findById(req.params.comment_id,function(err,foundcomment){
         if(err){
@@ -237,7 +217,6 @@ app.get("/discussions/:id/comments/:comment_id/edit",checkCommentOwnership,async
     })
     
 });
-//comment put request
 app.put("/discussions/:id/comments/:comment_id",checkCommentOwnership,async function(req,res){
     await comment.findByIdAndUpdate(req.params.comment_id, req.body.comment,function(err,updatedcomment){
         if(err){
@@ -248,9 +227,8 @@ app.put("/discussions/:id/comments/:comment_id",checkCommentOwnership,async func
         }
     });
 });
-//comment delet
 app.delete("/discussions/:id/comments/:comment_id",checkCommentOwnership,async function(req,res){
-    //find by id and remove
+    
     await comment.findByIdAndRemove(req.params.comment_id,function(err){
         if(err){
             res.redirect("back");
@@ -263,16 +241,11 @@ app.delete("/discussions/:id/comments/:comment_id",checkCommentOwnership,async f
 
 
 
-//==============================================
-//AUTH routes
-//==============================================
 
-//show register form
 app.get("/register",function(req,res){
     res.render("register");
 });
 
-//responsible for user singup logic
 app.post("/register",function(req,res){
     var newUser= new User ({username:req.body.username});
     
@@ -283,18 +256,16 @@ app.post("/register",function(req,res){
             return res.render("register");
         }
         passport.authenticate("local")(req,res,function(){
-            //req.flash("success","Welcome to MYSELF "+user.username);
+            
             res.redirect("/");
         });
     });
 });
 
-//show login form
 app.get("/login",function(req,res){
     res.render("login");
 });
-//login logic
-//app.post("/ogin",middleware,callback)
+
 app.post("/login",passport.authenticate("local",{
    failureFlash: true,
    failureRedirect:"/login"
@@ -306,7 +277,7 @@ app.post("/login",passport.authenticate("local",{
 
 });
 
-//logout
+
 app.get("/logout",function(req,res){
     req.logOut();
     //req.flash("success","Logged you out!!")
@@ -314,9 +285,7 @@ app.get("/logout",function(req,res){
 });
 
 
-//=================================
-//collection
-//=================================
+
 app.get("/col/new",isLoggedIn,function(req,res){
     console.log(req.user);
     res.render("collections/new");
@@ -334,8 +303,6 @@ app.get("/col",isLoggedIn,function(req,res){
     res.render("collections/show");
 })
 
-//==================================
-//delet collection
 //=================================
 app.delete("/col/:id",function(req,res){
     
@@ -360,9 +327,7 @@ app.delete("/col/:id",function(req,res){
     
     });
 
-//====================================
-//adding material
-//====================================
+
 
 app.get("/material/addMaterial",isModerator,async function(req,res){
     console.log("request for addmaterials page");
@@ -406,9 +371,7 @@ function isModerator(req,res,next){
 }
 
 
-//====================================
-//addsuggestion
-//====================================
+
 
 app.get("/material/addsuggestions",isLoggedIn,function(req,res){
     console.log("request for suggestion page");
@@ -442,12 +405,9 @@ app.post("/material/addsuggestions",isLoggedIn,function(req,res){
             
 });
 
-//======================================
-//editing and deleting suggestion
-//====================================
 
 
-//comment delet
+
 app.delete("/material/addsuggestions/:suggestion_id",checkSuggestionOwnership,function(req,res){
     
     suggestion.findByIdAndRemove(req.params.suggestion_id,function(err){
@@ -460,9 +420,7 @@ app.delete("/material/addsuggestions/:suggestion_id",checkSuggestionOwnership,fu
     });
 });
 
-//====================================
-//isloggedin check
-//====================================
+
 function isLoggedIn(req, res, next){
     if(req.isAuthenticated()){
         return next();
@@ -475,7 +433,6 @@ function isLoggedIn(req, res, next){
 };
 
 
-//function check the discussion belongs to owner??
 function checkdiscussionOwnership(req,res,next){
     if(req.isAuthenticated()){
         discussion.findById(req.params.id,function(err,founddiscussion){
