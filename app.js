@@ -76,20 +76,12 @@ app.use(function (req, res, next) {
 
 
 
-//creating new champf=ground every time for test and make proper wor
-
-//=========================================
-//all router
-//=========================================
 
 app.get("/", function (req, res) {
 
     console.log("request for landing page");
     res.render("landing");
 });
-//=============================================
-//discussion
-//=============================================
 
 app.get("/discussions", async function (req, res) {
 
@@ -144,9 +136,6 @@ app.get("/discussions/:id", async function (req, res) {
 
 });
 
-//=================================
-//edit and update discussion route
-//==================================
 
 //edit discussion route
 app.get("/discussions/:id/edit", checkdiscussionOwnership, async function (req, res) {
@@ -181,9 +170,7 @@ app.delete("/discussions/:id", checkdiscussionOwnership, async function (req, re
 
 
 
-//=============================================================
-//comment routes
-//==============================================================
+
 
 app.get("/discussions/:id/comments/new", isLoggedIn, async function (req, res) {
     await discussion.findById(req.params.id, function (err, discussion) {
@@ -263,9 +250,6 @@ app.delete("/discussions/:id/comments/:comment_id", checkCommentOwnership, async
 
 
 
-//==============================================
-//AUTH routes
-//==============================================
 
 //show register form
 app.get("/register", function (req, res) {
@@ -334,8 +318,6 @@ app.get("/col", isLoggedIn, function (req, res) {
     res.render("collections/show");
 })
 
-//==================================
-//delet collection
 //=================================
 app.delete("/col/:id", function (req, res) {
 
@@ -359,9 +341,7 @@ app.delete("/col/:id", function (req, res) {
 
 });
 
-//====================================
-//adding material
-//====================================
+
 
 app.get("/material/addMaterial", isModerator, async function (req, res) {
     console.log("request for addmaterials page");
@@ -405,9 +385,7 @@ function isModerator(req, res, next) {
 }
 
 
-//====================================
-//addsuggestion
-//====================================
+
 
 app.get("/material/addsuggestions", isLoggedIn, function (req, res) {
     console.log("request for suggestion page");
@@ -441,9 +419,6 @@ app.post("/material/addsuggestions", isLoggedIn, function (req, res) {
 
 });
 
-//======================================
-//editing and deleting suggestion
-//====================================
 
 
 //comment delet
